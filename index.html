@@ -1,0 +1,217 @@
+
+<!doctype HTML>
+<html>
+    <head>
+        <title>Kompresinaja!</title>
+        <meta name="charset" content="utf-8">
+        <!-- link bootstrap -->
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+        <!-- link scss -->
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+    </head>
+<body>
+	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+		<div class="container">
+			<!-- start version mobile -->
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="./">Kompresinaja!</a>
+            </div>
+            <!-- end version mobile -->
+
+            <!-- menu navbar start -->
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+				<ul class="nav navbar-nav">
+					<li>
+						<a href="#imgGrayscale()">Graysclae </a>
+                    </li>
+                    <li>
+                        <a href="#histogram()">Histogram</a>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Filtering Konvolusi <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#filter_sharpen()">Sharpen</a></li>
+                            <li><a href="#filter_soften()">Soften</a></li>
+                        </ul>
+                    </li>
+                    <li>
+						<a href="#imgBinary()">Threshold </a>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dilasi & Erosi <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#tepi_robert()">Dilasi</a></li>
+                            <li><a href="#tepi_prewitt()">Erosi</a></li>
+                        </ul>
+                    </li>
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<li>
+                        <a href="#imgReset()">Reset</a>
+                    </li>
+				</ul>
+            </div>
+            <!-- menu navbar end -->
+		</div>
+	</nav>
+
+    <!-- start container -->
+	<div id="page" class="container">
+		<div id="main" class="col-sm-9 col-md-9 col-lg-9">
+            <div id="hist" class="well">
+                <span class="imginfo">Histogram Citra <a href="#" onclick="$('#hist').slideUp();return false;">(Close)</a></span>
+                <div id="bar-chart"></div>
+            </div>
+            <!-- start kanvas gambar -->
+			<div class="gambar well">
+				<h2 class="imgtitle"><span>Upload Gambar</span></h2>
+				<span class="imgbox"><canvas id="kanvas"></span>
+            </div>
+            <!-- end kanvas gambar -->
+		</div>
+		<div id="sidebar" class="col-sm-3 col-md-3 col-lg-3">             
+            <div class="well light">
+                <!-- modal upload gambar -->
+                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#upload_modal">Upload Gambar</button>
+            </div>
+            <div class="well light">
+                    <!-- modal image compressing -->
+                    <a href="image_compressing/index.html" class="btn btn-info">Kompres disini</a>
+                </div>
+			<div class="well light">
+				<div class="imginfo">
+                    <!-- untuk menentukan ukuran gambar lebar, tinggi, dan panjang -->
+					<div id="imgwidth"></div>
+					<div id="imgheight"></div>
+					<div id="imglength"></div>
+				</div>
+            </div>
+            <div class="well light">
+                Brightness:
+                <input id="inp-brightness" type="range" value="0" min="-100" max="100" step="5" style="width:100%">
+            </div>
+            <div class="well light">
+                <!-- bitton zoom in dan zoom out gambar -->
+              
+                <button type="button" onclick="zoomin()" class="btn btn-info" >Zoom in</button>
+        
+                <button type="button" onclick="zoomout()" class="btn btn-info" >Zoom out</button>
+                       
+                
+            </div>
+		</div>
+    </div>
+    <!-- end container -->
+
+    <!-- start modal -->
+    
+    <!-- start Modal Upload -->
+    <div id="upload_modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Upload Gambar</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="" role="search">
+                        <div class="form-group">
+                            <input type="file" id="imgFile" class="form-control">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end Modal Upload -->
+
+    <!-- end modal -->
+
+</body>
+    <!-- script js bootstrap -->
+    <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <!-- script main js -->
+    <script type="text/javascript" src="js/main.js"></script>
+
+    <!-- jQuery Flot -->
+    <!-- <script type="text/javascript" src="js/excanvas.min.js"></script> -->
+    <script type="text/javascript" src="js/jquery.flot.js"></script>
+    <script type="text/javascript" src="js/jquery.flot.resize.js"></script>
+    <script type="text/javascript" src="js/jquery.flot.pie.js"></script>
+    <script type="text/javascript" src="js/jquery.flot.stack.js"></script>
+    <!-- End of jQuery Flot -->
+    
+    <!-- script untuk Brightness -->
+    <script type="text/javascript">
+        // function Brightness
+        $("#inp-brightness").change(function(){
+            // input nomer pada inp-brightness
+            var inp = $(this).val();
+    
+            if ($(this).data('old-value') < $(this).val()) {
+                inp = -1 * inp; // alert('Alert up');
+            } else {
+                inp = 1 * inp; // alert('Alert down');
+            }
+    
+            // reset gambar
+            ctx.drawImage(myImg, 0, 0);
+    
+            // membaca data gambar
+            var imgData = ctx.getImageData(0, 0, cvs.width, cvs.height);
+    
+            // manipulation data gambar
+            for (var i = 0; i < imgData.data.length; i+=4) {
+                //R
+                imgData.data[i] = imgData.data[i] + inp;
+                if(imgData.data[i] < 0) imgData.data[i] = 0;
+                else if(imgData.data[i] > 255) imgData.data[i] = 255;
+                
+                //G
+                imgData.data[i+1] = imgData.data[i+1] + inp;
+                if(imgData.data[i+1] < 0) imgData.data[i+1] = 0;
+                else if(imgData.data[i+1] > 255) imgData.data[i+1] = 255;
+    
+                // B
+                imgData.data[i+2] = imgData.data[i+2] + inp;
+                if(imgData.data[i+2] < 0) imgData.data[i+2] = 0;
+                else if(imgData.data[i+2] > 255) imgData.data[i+2] = 255;
+            }
+    
+            // tampilkan hasil brigtness
+            ctx.putImageData(imgData, 0, 0);
+        });
+        // end function
+
+        // function zoom in dan zoom out
+        function zoomin() {
+            var myImg = document.getElementById("kanvas");
+            var currWidth = myImg.clientWidth;
+            if (currWidth == 2500) return false;
+            else {
+                myImg.style.width = (currWidth + 100) + "px";
+            }
+        }
+
+        function zoomout() {
+            var myImg = document.getElementById("kanvas");
+            var currWidth = myImg.clientWidth;
+            if (currWidth == 100) return false;
+            else {
+                myImg.style.width = (currWidth - 100) + "px";
+            }
+        }
+        // end function
+    </script>
+</html>
